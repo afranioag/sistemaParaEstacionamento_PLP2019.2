@@ -1,8 +1,8 @@
 # jogodamemoria_PLP2019.2
 
-O jogo da memoria é um estimulante desafio para memoria, onde o jogador ira testar sua capacidade de memorizar posições correras de cartas aleatórias. 
+O jogo da memoria é um estimulante desafio para memoria, onde o jogador irá testar sua capacidade de memorizar posições correras de cartas aleatórias. 
 
-*O jogo consiste em um número par de peças,onde cada peça terá dois lados. Um dos lados irá ter uma imagem/simbolo que será seu dentificador tendo no jogo sempre duas peças iguais. Do outro será exibido em todas as peças a mesma imagem/simbolo no inicio do jogo.
+*O jogo consiste em um número par de peças,onde cada peça terá dois lados. Um dos lados irá ter uma imagem/simbolo que será seu identificador, tendo no jogo sempre duas peças iguais e não mais que isso. Do outro será exibido em todas as peças a mesma imagem/simbolo no inicio do jogo.
 
 *Quando o jogo começa, todas as peças estão voltadas para baixo é exibido temporariamente uma quantidade pequena das peças escolhido aleatoriamente e então todas ficam viradas para baixo.
 
