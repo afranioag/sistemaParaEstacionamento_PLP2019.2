@@ -52,14 +52,15 @@ float get_time()
 
 int hash_function(int id)
 {
-    hash = math.floor((park->size) * ((id * 0.5) % 1));
-    return hash;
+    float aux = (park->size) * (((float)id * 0.5));
+    unsigned int hash = floor(aux);
+    return hash % park->size;
 }
 
 int get_id(char plate[20])
 {
     int temp = atoi(plate);
-    int id = hash_function(temp);
+    unsigned int id = hash_function(temp);
     int k = 1;
     while((strcmp(park->clients[id]->plate,plate) != 0) && (park->clients[id] != NULL)){
         id = (id + k*k) % park->size;
@@ -76,7 +77,7 @@ int get_id(char plate[20])
 int generate_id(char plate[20])
 {
     int temp = atoi(plate);
-    int id = hash_function(temp);
+    unsigned int id = hash_function(temp);
     int k = 1;
     while(park->clients[id]!=NULL){
         id = (id + k*k) % park->size;
@@ -95,7 +96,7 @@ Client* fill_new_client(Client* client)
 {
     client = (Client*)malloc(sizeof(Client));
     printf("\nPlate?: ");
-    scanf("%d",client->plate);
+    scanf("%s",client->plate);
     printf("\nVehicle?: ");
     scanf("%s",client->vehicle);
     client->id = generate_id(client->plate);
@@ -128,10 +129,11 @@ void get_ticket(Client* client)
 // incompleta
 void checkout()
 {
-    int temp_plate, temp_id;
+    int temp_id;
+    char temp_plate[20];
     Client* temp_client;
     printf("Plate?: ");
-    scanf("%d",&temp_plate);
+    scanf("%s",temp_plate);
     temp_id = get_id(temp_plate);
     if(temp_id != -1){
         temp_client = park->clients[temp_id];
@@ -151,5 +153,9 @@ void menu()
 
 int main(int argc, char* argv[])
 {
+    int i;
     create_empty_park(1000);
+    for(i=0;i<5;i++){
+        register_new_client();
+    }
 }
