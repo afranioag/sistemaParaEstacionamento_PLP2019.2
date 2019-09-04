@@ -1,4 +1,4 @@
-Sistema de controle para estacionamento.
+# Sistema de controle para estacionamento.
 
 O sistema fará o controle geral do estacionamento onde é preciso organizar espaço e tempo.  O cliente ao chegar com o carro recebe um ticket com informações com hora de entrada e da vaga disponível para seu carro.
 
@@ -9,5 +9,5 @@ O cliente terá um tempo determinado inicialmente onde ele pagará apenas uma ta
 * O estacionamento terá vagas exclusivas para clientes e funcionários
 * Descontos e estacionamento vip para clientes regulares
 * Vagas separadas para funcionários
-* Reserva de vagas 
+* Reserva de vagas
 
