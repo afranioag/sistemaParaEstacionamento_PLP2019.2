@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #define TRUE 1
 #define FALSE 0
 // constantes
@@ -11,7 +12,7 @@
 typedef struct _client_{
     int id, arrival, departure;
     float amount;
-    int plate;
+    char plate[20];
     char vehicle[20];
 }Client;
 
@@ -49,6 +50,41 @@ float get_time()
     return -1.0;
 }
 
+int hash_function(int id)
+{
+    hash = math.floor((park->size) * ((id * 0.5) % 1));
+    return hash;
+}
+
+int get_id(char plate[20])
+{
+    int temp = atoi(plate);
+    int id = hash_function(temp);
+    int k = 1;
+    while((strcmp(park->clients[id]->plate,plate) != 0) && (park->clients[id] != NULL)){
+        id = (id + k*k) % park->size;
+        k++;
+    }
+    if(strcmp(park->clients[id]->plate,plate) == 0){
+        return id;
+    }
+    else{
+        return -1;
+    }
+}
+
+int generate_id(char plate[20])
+{
+    int temp = atoi(plate);
+    int id = hash_function(temp);
+    int k = 1;
+    while(park->clients[id]!=NULL){
+        id = (id + k*k) % park->size;
+        k++;
+    }
+    return id;
+}
+
 int check_spots()
 {
     if(park->free == 0) return FALSE;
@@ -59,10 +95,10 @@ Client* fill_new_client(Client* client)
 {
     client = (Client*)malloc(sizeof(Client));
     printf("\nPlate?: ");
-    scanf("%d",&client->plate);
+    scanf("%d",client->plate);
     printf("\nVehicle?: ");
     scanf("%s",client->vehicle);
-    client->id = plate % park->size;
+    client->id = generate_id(client->plate);
     client->arrival = get_time();
     client->departure = -1;
     client->amount = 0;
@@ -74,7 +110,7 @@ int register_new_client()
     Client *temp = NULL;
     if(check_spots()){
         temp = fill_new_client(temp);
-        park->clients[temp->spot] = temp;
+        park->clients[temp->id] = temp;
         park->free--;
         return TRUE;
     }
@@ -90,15 +126,20 @@ void get_ticket(Client* client)
 }
 
 // incompleta
-int checkout()
+void checkout()
 {
     int temp_plate, temp_id;
     Client* temp_client;
     printf("Plate?: ");
     scanf("%d",&temp_plate);
-    temp_id = temp_plate % park->size;
-    temp_client = park->clients[temp_id];
-    get_ticket(temp_client);
+    temp_id = get_id(temp_plate);
+    if(temp_id != -1){
+        temp_client = park->clients[temp_id];
+        get_ticket(temp_client);
+    }
+    else{
+        printf("Plate not found\n");
+    }
 }
 // incompleta
 void menu()
