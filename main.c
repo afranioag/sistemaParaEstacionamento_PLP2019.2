@@ -11,7 +11,7 @@
 
 typedef struct _client_{
     int id, arrival, departure;
-    float amount;
+    int fee;
     char plate[20];
     char vehicle[20];
 }Client;
@@ -79,11 +79,14 @@ int generate_id(char plate[20])
     int temp = atoi(plate);
     unsigned int id = hash_function(temp);
     int k = 1;
-    while(park->clients[id]!=NULL){
+    while(park->clients[id]!=NULL && strcmp(park->clients[id]->plate,plate) != 0){
         id = (id + k*k) % park->size;
         k++;
     }
-    return id;
+    if(park->clients[id] ==NULL)
+        return id;
+    else
+        return -1;
 }
 
 int check_spots()
@@ -100,10 +103,13 @@ Client* fill_new_client(Client* client)
     printf("\nVehicle?: ");
     scanf("%s",client->vehicle);
     client->id = generate_id(client->plate);
-    client->arrival = get_time();
-    client->departure = -1;
-    client->amount = 0;
-    return client;
+    if(client->id != -1){
+        client->arrival = get_time();
+        client->departure = -1;
+        client->fee = 0;
+        return client;
+    }
+    return NULL;
 }
 
 int register_new_client()
@@ -111,19 +117,35 @@ int register_new_client()
     Client *temp = NULL;
     if(check_spots()){
         temp = fill_new_client(temp);
-        park->clients[temp->id] = temp;
-        park->free--;
-        return TRUE;
+        if(temp != NULL){
+            park->clients[temp->id] = temp;
+            park->free--;
+            printf("Car registered.\n");
+            return TRUE;
+        }
+
     }
-    else{
-        printf("No spots avaible!\n");
-        return FALSE;
-    }
+    printf("No spots available or car already registered.\n");
+    return FALSE;
 }
 
+void compute_fee()
+{
+    printf("Scope\n\n");
+}
+// incompleta
 void get_ticket(Client* client)
 {
-    printf("Scope\n");
+    int time_spent;
+    client->departure = get_time();
+    time_spent = (client->departure) - (client->arrival);
+    client->fee = compute_fee();
+    printf("SPOT ID   --> %d\n", client->id);
+    printf("PLATE     --> %s\n", client->plate);
+    printf("VEHICLE   --> %s\n", client->vehicle);
+    printf("ARRIVAL   --> %d\n", client->arrival);
+    printf("DEPARTURE --> %d\n", client->departure);
+    printf("FEE       --> %d\n", client->fee);
 }
 
 // incompleta
@@ -137,7 +159,8 @@ void checkout()
     temp_id = get_id(temp_plate);
     if(temp_id != -1){
         temp_client = park->clients[temp_id];
-        get_ticket(temp_client);
+        /*printf("Achou\n%s\n", temp_client->vehicle);*/
+        /*get_ticket(temp_client);*/
     }
     else{
         printf("Plate not found\n");
@@ -146,16 +169,18 @@ void checkout()
 // incompleta
 void menu()
 {
-    printf("1 - Cadastrar\n");
-    printf("2 - Pagar\n");
-    printf("3 - Buscar\n");
+    printf("1 - Register\n");
+    printf("2 - Checkout\n");
+    printf("3 - Search\n");
 }
 
 int main(int argc, char* argv[])
 {
     int i;
     create_empty_park(1000);
-    for(i=0;i<5;i++){
+    for(i=0;i<3;i++){
         register_new_client();
     }
+    checkout();
+    destroy_park();
 }
