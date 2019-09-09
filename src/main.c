@@ -165,7 +165,7 @@ int get_extra_time(int time)
     else return 0;
 }
 
-int compute_fee(int time,char vehicle)
+int compute_fee(int time, char vehicle)
 {
     int extra_time = get_extra_time(time);
     switch(vehicle){
@@ -200,6 +200,7 @@ void do_payment(int id)
 {
     free(park->clients[id]);
     park->clients[id] = NULL;
+    park->free++;
 }
 
 void checkout()
