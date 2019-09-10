@@ -15,8 +15,9 @@
 #define BIKE_POST_TAX 0.25
 
 typedef struct _client_{
-    int id, arrival, departure;
+    int id;
     int fee;
+    struct tm *arrival, *departure;
     char plate[20];
     char vehicle;
 }Client;
@@ -89,13 +90,13 @@ int generate_id(char plate[20])
         return -1;
 }
 
-int get_time()
+struct tm* get_time()
 {
     struct tm *actual_time;
     time_t seconds;
     time(&seconds);
     actual_time = localtime(&seconds);
-    return actual_time->tm_hour;
+    return actual_time;
 }
 
 char get_vehicle()
@@ -123,15 +124,16 @@ char get_vehicle()
 
 Client* fill_new_client(Client* client)
 {
+    system("clear");
+    printf("----VEHICLE INFORMATIONS----\n\n");
     client = (Client*)malloc(sizeof(Client));
-    printf("\nPlate?: ");
+    printf("Plate?: ");
     scanf("%s",client->plate);
     __fpurge(stdin);
     printf("\nVehicle?: ");
     client->vehicle = get_vehicle();
     client->id = generate_id(client->plate);
     client->arrival = get_time();
-    client->departure = -1;
     client->fee = 0;
     if(client->id != -1){
         return client;
@@ -184,14 +186,16 @@ int compute_fee(int time, char vehicle)
 void get_ticket(Client* client)
 {
     int time_spent;
+    system("clear");
     client->departure = get_time();
-    time_spent = (client->departure) - (client->arrival);
+    time_spent = (client->departure->tm_hour) - (client->arrival->tm_hour);
     client->fee = compute_fee(time_spent,client->vehicle);
+    printf("----DIGITAL TICKET----\n\n");
     printf("SPOT ID   --> %d\n", client->id);
     printf("PLATE     --> %s\n", client->plate);
     printf("VEHICLE   --> %c\n", client->vehicle);
-    printf("ARRIVAL   --> %d\n", client->arrival);
-    printf("DEPARTURE --> %d\n", client->departure);
+    printf("ARRIVAL   --> %dh:%dm\n", client->arrival->tm_hour, client->arrival->tm_min);
+    printf("DEPARTURE --> %dh:%dm\n", client->departure->tm_hour, client->departure->tm_min);
     printf("FEE       --> %d\n", client->fee);
 
 }
@@ -206,10 +210,12 @@ void do_payment(int id)
 void checkout()
 {
     int temp_id;
+    char ch;
     char opt;
     char temp_plate[20];
     Client* temp_client;
     printf("Plate?: ");
+    __fpurge(stdin);
     scanf("%s",temp_plate);
     temp_id = get_id(temp_plate);
     if(temp_id != -1){
@@ -219,11 +225,13 @@ void checkout()
         __fpurge(stdin);
         scanf("%c", &opt);
         switch(opt){
-            case 'Y':
+            case 'y':
                 do_payment(temp_id);
+                printf("Payment done!\n");
+                __fpurge(stdin);
+                scanf("%c",&ch);
                 break;
-            case 'N':
-                system("clear");
+            case 'n':
                 break;
             default:
                 printf("Invalid option!\n");
@@ -231,37 +239,46 @@ void checkout()
         }
     }
     else{
+        system("clear");
         printf("Plate not found\n");
     }
 }
 // incompleta
 void menu()
 {
-    int opt;
-    printf("1 - Register\n");
-    printf("2 - Check\n");
-    printf("3 - Search\n");
-    printf(">>> ");
-    scanf("%d", &opt);
-    switch(opt){
-        case 1:
-            break;
-        case 2:
-            break;
-        case 3:
-            break;
-        default:
-            break;
+    char ch;
+    int opt, leave;
+    leave = FALSE;
+    while(TRUE){
+        system("clear");
+        printf("1 - Register\n");
+        printf("2 - Check\n");
+        printf(">>> ");
+        scanf("%d", &opt);
+        switch(opt){
+            case 1:
+                register_new_client();
+                __fpurge(stdin);
+                scanf("%c",&ch);
+                break;
+            case 2:
+                checkout();
+                break;
+            case 123321:
+                leave = TRUE;
+                printf("bye!\n");
+                break;
+            default:
+                printf("Invalid option!\n");
+                break;
+        }
+        if(leave) break;
     }
 }
 
 int main(int argc, char* argv[])
 {
-    int i;
     create_empty_park(1000);
-    for(i=0;i<3;i++){
-        register_new_client();
-    }
-    checkout();
+    menu();
     destroy_park();
 }
