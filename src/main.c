@@ -30,6 +30,13 @@ typedef struct _parking_slots{
 
 Park* park = NULL;
 
+void wait()
+{
+    char ch;
+    __fpurge(stdin);
+    scanf("%c", &ch);
+}
+
 void create_empty_park(int size)
 {
     park = (Park*)malloc(sizeof(Park));
@@ -228,8 +235,6 @@ void checkout()
             case 'y':
                 do_payment(temp_id);
                 printf("Payment done!\n");
-                __fpurge(stdin);
-                scanf("%c",&ch);
                 break;
             case 'n':
                 break;
@@ -258,11 +263,11 @@ void menu()
         switch(opt){
             case 1:
                 register_new_client();
-                __fpurge(stdin);
-                scanf("%c",&ch);
+                wait();
                 break;
             case 2:
                 checkout();
+                wait();
                 break;
             case 123321:
                 leave = TRUE;
