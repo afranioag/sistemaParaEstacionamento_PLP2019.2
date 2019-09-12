@@ -237,7 +237,7 @@ char *register_new_client()
         }
         else{
             int spot = get_id(temp->plate, temp->park);
-            sprintf(buffer,"Vehicle with plate %s already at spot %d in park %d\n",temp->plate, spot, temp->park);
+            sprintf(buffer,"Vehicle with plate %s already at spot %d in park %d\n",temp->plate, spot, temp->park + 1);
             free(temp);
         }
         return buffer;
@@ -359,7 +359,7 @@ void menu()
         printf("Truck spots avaiable ---> %d\n",park->parks[1]->free);
         printf("Bike spots avaiable  ---> %d\n",park->parks[2]->free);
         printf("1 - Register\n");
-        printf("2 - Check\n");
+        printf("2 - Checkout\n");
         printf(">>> ");
         scanf("%d", &opt);
         switch(opt){
@@ -383,7 +383,7 @@ void menu()
 }
 
 int main(int argc, char* argv[])
-{   
+{
     if(argc != 2) exit(-1);
     create_empty_park(atoi(argv[1]));
     menu(park);
