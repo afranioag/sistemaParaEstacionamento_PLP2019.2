@@ -17,6 +17,9 @@
 #define CAR_RATIO 4
 #define TRUCK_RATIO 1
 
+/*
+    Data Structures
+*/
 typedef struct _client_{
     int id;
     int fee;
@@ -46,7 +49,9 @@ void wait()
     scanf("%c", &ch);
 }
 
-
+/*
+    Park creation/deleting Functions.
+*/
 int *get_sizes_ratios(int size)
 {
     int *output;
@@ -96,6 +101,9 @@ void destroy_park()
     free(park);
 }
 
+/*
+    Hash functions
+*/
 int hash_function(int id, int park_id)
 {
     float aux = (park->parks[park_id]->size) * (((float)id * 0.5));
@@ -135,6 +143,9 @@ int generate_id(char plate[20],int park_id)
         return -1;
 }
 
+/*
+    Time functions
+*/
 int get_hour()
 {
     struct tm *actual_time;
@@ -152,7 +163,9 @@ int get_minute()
     actual_time = localtime(&seconds);
     return actual_time->tm_min;
 }
-
+/*
+    Client register functions.
+*/
 char get_vehicle()
 {
     int vehicle;
@@ -234,7 +247,9 @@ char *register_new_client()
     free(temp);
     return buffer;
 }
-
+/*
+    Checkout functions.
+*/
 int get_extra_time(int time)
 {
     int extra;
@@ -290,6 +305,7 @@ int get_park_id()
     scanf("%d", &park);
     return park-1;
 }
+
 void checkout()
 {
     int temp_id, park_id;
@@ -328,7 +344,9 @@ void checkout()
         wait();
     }
 }
-
+/*
+    Main menu function.
+*/
 void menu()
 {
     char ch;
@@ -365,9 +383,9 @@ void menu()
 }
 
 int main(int argc, char* argv[])
-{
+{   
     if(argc != 2) exit(-1);
     create_empty_park(atoi(argv[1]));
-    menu();
-    destroy_park();
+    menu(park);
+    destroy_park(park);
 }
