@@ -297,6 +297,7 @@ void checkout()
     char opt;
     char temp_plate[20];
     Client* temp_client;
+    system("clear");
     printf("Plate: ");
     __fpurge(stdin);
     scanf("%s",temp_plate);
