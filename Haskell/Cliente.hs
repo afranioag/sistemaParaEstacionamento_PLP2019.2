@@ -14,10 +14,10 @@ module Cliente(
 
 where
 
-import Data.List.Split
+import  Data.List.Split
 import System.Directory
 
-data Cliente = Cliente{cpf:: String, placa::String, veiculo::String, status::String, valor::Float, vaga::Int}
+data Cliente = Cliente{cpf:: String, placa::String, veiculo::String, status::String, valor::Float, vaga::Int} | Funcionario{cpf::String, vaga::Int}deriving (Show)
 
 clienteCpf::Cliente->String
 clienteCpf (Cliente cpf _ _ _ _ _) = cpf

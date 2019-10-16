@@ -1,4 +1,6 @@
 import Cliente
+import Estacionamento
+import Data.List.Split
 
 opcoes = putStrLn $ "1 - VIP\n2 - Normal"
 
@@ -22,9 +24,11 @@ cadastro = do
     putStrLn $ "Status: "
     status <- pegaStatus
     -- função não implementada
+    vagas <- lerEstacionamento "vagas.txt"
+    let vaga = alocaVaga (splitOn "\n" vagas)
     salvaCliente (Cliente cpf placa veiculo status 0.0 vaga)
-    where
-        vaga = 0
+    atualizaVaga (show vaga) "vagas.txt"
+
 
 {-reserva:: IO()-}
 --reserva = do
