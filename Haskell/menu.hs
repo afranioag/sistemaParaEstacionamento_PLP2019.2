@@ -22,7 +22,9 @@ cadastro = do
     putStrLn $ "Status: "
     status <- pegaStatus
     -- função não implementada
-    salvaCliente (Cliente cpf placa veiculo status 0.0 10)
+    salvaCliente (Cliente cpf placa veiculo status 0.0 vaga)
+    where
+        vaga = 0
 
 {-reserva:: IO()-}
 --reserva = do
@@ -30,17 +32,19 @@ cadastro = do
     --putStrLn $ "Digite seu cpf: "
     --cpf <- getLine
     --if verificaCpf cpf then fazReserva cpf
-    --else putStrLn $ "Cliente não existe."
+    {-else putStrLn $ "Cliente não existe."-}
 
---pagar:: IO()
---pagar = do
-    --putStrLn $ "Pagar saida do estacionamento"
-    --putStrLn $ "Digite a palca do veículo: "
-    --placa <- getLine
-    --let valor = calculaValor placa
-    --let cliente = buscaCliente placa
-    --let clienteAtualizado = clienteAtualizaValor cliente valor
-    --clienteMostraCliente cliente
+pagar:: IO()
+pagar = do
+    putStrLn $ "Pagar saida do estacionamento"
+    putStrLn $ "Digite seu cpf: "
+    cpf <- getLine
+    clientes <- lerArquivo
+    let cliente = geraCliente (recuperaCliente clientes cpf)
+    let valor = 10
+    let clienteAtualizado = clienteAtualizaValor cliente valor
+    removeCliente cpf
+    putStrLn $ clienteMostraCliente clienteAtualizado
 
 meuMenu:: Bool->IO()
 meuMenu True = return ()
@@ -53,7 +57,6 @@ meuMenu saida = do
     opt <- getLine
     if opt == "1"
         then do
-            putStrLn $ "cadastrar"
             cadastro
             meuMenu False
     else
@@ -64,7 +67,7 @@ meuMenu saida = do
         else
             if opt == "3"
                 then do
-                    putStrLn $ "Pagar"
+                    pagar
                     meuMenu False
             else
                 if opt == "4"
