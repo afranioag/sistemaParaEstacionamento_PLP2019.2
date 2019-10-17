@@ -1,11 +1,11 @@
 module Funcionario(
-    Funcionario(..)
+    Funcionario(..),
     geraFuncionario,
     funcionarioCpf,
     funcionarioVaga,
     formataFuncionario,
     mostraFuncionario,
-    alteraVagaFuncionario
+    alteraVagaFuncionario,
     salvaFuncionario,
     recuperaFuncionario,
     funcionarioLerArquivo,
@@ -22,13 +22,6 @@ data Funcionario = Funcionario{cpf::String, vaga::Int}deriving (Show)
 alteraVagaFuncionario:: Int-> Funcionario-> Funcionario
 alteraVagaFuncionario vaga (Funcionario a b) = ((Funcionario a vaga))
 
-geraFuncionario:: String->Funcionario
-geraFuncionario = 
-        if funcionario /= "" then(Funcionario (dados !! 0) (read (dados !! 1)::Int))
-        else (Funcionario "" 0)
-        where
-            dados = splitOn "-" funcionario
-
 funcionarioCpf:: Funcionario->String
 funcionarioCpf (Funcionario cpf _) = cpf
 
@@ -40,6 +33,13 @@ formataFuncionario (Funcionario a b) = a ++ "-" ++ (show b) ++ "\n"
 
 mostraFuncionario:: Funcionario->String
 mostraFuncionario (Funcionario a b) = "\nCPF: " ++ a ++ "\nVaga: " ++ (show b)
+
+geraFuncionario:: String->Funcionario
+geraFuncionario funcionario  = 
+    if funcionario /= "" then(Funcionario (dados !! 0) (read (dados !! 1)::Int))
+    else (Funcionario "" 0)
+    where
+        dados = splitOn "-" funcionario
 
 isFuncionario:: [String]->String->String
 isFuncionario [] key = ""
@@ -57,25 +57,26 @@ recuperaFuncionario funcionario cpf = do
 funcionarioLerArquivo::IO String
 funcionarioLerArquivo = readFile "dados/funcionarios.txt"
 
-salvaFuncionario::Cliente->IO()
+salvaFuncionario::Funcionario->IO()
 salvaFuncionario funcionario  = do
-    funcionario <- lerArquivo
-    let flag = recuperaFuncionario funcionario (funcionarioCpf funcionario)
+    funcionarioIO <- funcionarioLerArquivo
+    let flag = recuperaFuncionario funcionarioIO (funcionarioCpf funcionario)
     if flag /= "" then putStrLn $ "Funcionario já existe"
     else do
         appendFile "dados/funcinarios.txt" $ formataFuncionario funcionario
 
-atualizaFuncionarioAux::String->[String]->Int->[String]
-atualizaFuncionarioAux cpf [] vaga = []
-atualizaFuncionarioAux cpf (x:xs) vaga =
-    if (funcionario !! 0) == cpf then (formataFuncionario (clienteAlteraVaga vaga (geraFuncionario x))):atualizaFuncionarioAux cpf xs
-    else x:atualizaFuncionarioAux cpf xs
-    where funcionario = splitOn "-" x
+atualizaFuncionarioAux::String->[String]->String->[String]
+atualizaFuncionarioAux cpf [] funcionario = []
+atualizaFuncionarioAux cpf (x:xs) funcionario =
+    if (antigo !! 0) == (novo !! 0) then (funcionario):atualizaFuncionarioAux cpf xs funcionario
+    else x:atualizaFuncionarioAux cpf xs funcionario
+    where
+        antigo = splitOn "-" x
+        novo = splitOn "-" funcionario
 
-atualizaFuncionario::String->Int->IO()
-atualizaFuncionario cpf vaga= do
-    funcionario <- lerArquivo
-    let funcionarioAtualizado = atualizaFuncionarioAux cpf (splitOn "\n" funcionario) vaga
+atualizaFuncionario::String->String->IO()
+atualizaFuncionario cpf funcionario= do
+    funcionarios <- funcionarioLerArquivo
+    let funcionarioAtualizado = atualizaFuncionarioAux cpf (splitOn "\n" funcionarios) funcionario
     removeFile "dados/funcionarios.txt"
-    writeFile "dados/funcionarios.txt" $ init(unlines funcionarioAtualizado)
-
+    writeFile "dados/funcionarios.txt" $ (unlines funcionarioAtualizado)
