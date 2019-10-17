@@ -1,9 +1,7 @@
 module Estacionamento(
     getHoraAtual,
     getMinutoAtual,
-    recuperaVagaReservada,
     alocaVaga,
-    formataVaga,
     criaEstacionamento,
     atualizaVaga,
     lerEstacionamento,
@@ -21,7 +19,7 @@ import Data.Time.LocalTime
 import Data.Time.Calendar
 
 
-data Vaga = Vaga{id::Int, ocupada::Bool, reservada::Bool, cpfCliente::String} deriving (Show)
+data Vaga = Vaga{id::Int, ocupada::Bool} deriving (Show)
 
 getMinutoAtual::IO Int
 getMinutoAtual = do
@@ -37,46 +35,46 @@ getHoraAtual = do
     let (TimeOfDay hour minute second) = localTimeOfDay $ utcToLocalTime timezone now
     return hour
 
-getClienteVaga::Vaga->String
-getClienteVaga (Vaga _ _ _ cliente) = cliente
-
+-- se retorna -1 é pq o estacionamento esta lotado
 alocaVaga::[String]->Int
-alocaVaga [] = 0
-alocaVaga (x:xs) = if (vaga !! 1) == "False" && (vaga !! 2) == "False" then (read (vaga !! 0)::Int) else alocaVaga xs
-    where vaga = splitOn "-" x
-
-recuperaVagaReservada::[String]->String->Int
-recuperaVagaReservada [] _ = 0
-recuperaVagaReservada (x:xs) cpf = if (vaga !! 3) == cpf then (read (vaga !! 0)::Int) else recuperaVagaReservada xs cpf
+alocaVaga [] = -1
+alocaVaga (x:xs) = if (vaga !! 1) == "False" then (read (vaga !! 0)::Int) else alocaVaga xs
     where vaga = splitOn "-" x
 
 lerEstacionamento::String->IO String
 lerEstacionamento arquivo = readFile arquivo
 
+-- atualiza a vaga indicando que ela esta ocupada
+myReplace::String->[String]->String
+myReplace flag [] = flag
+myReplace flag (x:xs) = x ++ "-" ++  myReplace flag xs
+
 atualizaVagaAux::String->[String]->String->[String]
-atualizaVagaAux vaga [] _ = []
-atualizaVagaAux vaga (x:xs) id =
-    if (antiga !! 0) == (nova !! 0) then vaga:atualizaVagaAux vaga xs id else x:atualizaVagaAux vaga xs id
+atualizaVagaAux flag [] _ = []
+atualizaVagaAux flag (x:xs) id =
+    if (vaga !! 0) == id then (myReplace flag (init vaga)):atualizaVagaAux xs id else x:atualizaVagaAux xs id
     where
-        antiga = splitOn "-" x
-        nova = splitOn "-" vaga
+        vaga = splitOn "-" x
 
 atualizaVaga::String->String->String->IO()
-atualizaVaga vaga estacionamento id = do
-    let novoEstacionamento = atualizaVagaAux vaga (splitOn "\n" estacionamento) id
-    removeFile "dados/vagas.txt"
-    writeFile "dados/vagas.txt" $ unlines novoEstacionamento
+atualizaVaga flag id estacionamento = do
+    vagas <- lerEstacionamento estacionamento
+    let novoEstacionamento = atualizaVagaAux flag (splitOn "\n" vagas) id
+    removeFile estacionamento
+    writeFile estacionamento $ unlines novoEstacionamento
 
 formataVaga::Vaga->String
-formataVaga (Vaga a b c d) = (show a) ++ "-" ++ (show b) ++ "-" ++ (show c) ++ "-" ++ d
+formataVaga (Vaga a b) = (show a) ++ "-" ++ (show b)
 
 criaEstacionamento::IO()
 criaEstacionamento = do
     writeFile "dados/vagas.txt" $ unlines vagasNormais
+    writeFile "dados/clientes.txtvagasVip.txt" $ unlines vagasVip
     writeFile "dados/funcionarios.txt" $ unlines vagasFuncionarios
     where
-        vagasNormais = [formataVaga (Vaga x False False "") | x <- [1..2000]]
-        vagasFuncionarios = [formataVaga (Vaga z False False "") | z <- [1..200]]
+        vagasNormais = [formataVaga (Vaga x False) | x <- [1..2000]]
+        vagasVip = [formataVaga (Vaga y False) | y <- [1..500]]
+        vagasFuncionarios = [formataVaga (Vaga z False) | z <- [1..200]]
 
 calculaValorAux::String->String->Int->Float
 calculaValorAux veiculo "vip" diff
@@ -95,7 +93,7 @@ calculaValorAux veiculo "normal" diff
         temp = if diff > 0 then fromIntegral diff:: Float else 1.0
 
 calculaValor::Cliente->IO Float
-calculaValor (Cliente _ _ veiculo status  _ _ hora _ _ _) = do
+calculaValor (Cliente _ _ veiculo status  _ _ hora _) = do
     temp <- getHoraAtual
     let diff = temp - hora
     let valor = calculaValorAux veiculo status diff
