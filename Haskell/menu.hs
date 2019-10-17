@@ -4,24 +4,24 @@ import Estacionamento
 import Data.List.Split
 
 
-{-checkInFuncionario:: IO()-}
---checkInFuncionario = do
-    --putStrLn $ "Bem vindo ao checkin do funcionario."
-    --putStrLn $ "CPF: "
-    --listaFuncionarios <- funcionarioLerArquivo
-    --cpf <- getLine
-    --putStrLn $ "Vaga: "
-    --vaga <- getLine
-    --let funcio = geraFuncionario (recuperaFuncionario listaFuncionarios cpf)
-    --if (funcionarioCpf funcio == "") then do
-        --putStrLn $ "CheckIn novo funcionario"
-        --vagas <- lerEstacionamento ("dados/vagasFuncionarios.txt")
-        --let vaga = alocaVaga (splitOn "\n" vagas)
-        --salvaFuncionario (Funcionario cpf vaga)
-        --atualizaVaga "True" (show vaga) ("dados/vagasFuncionarios.txt")
-        --putStrLn $ "CheckIn feito!"
-    --else do
-        --putStrLn $ "CheckIn Funcionario ja cadastrado."
+checkInFuncionario:: IO()
+checkInFuncionario = do
+    putStrLn $ "Bem vindo ao checkin do funcionario."
+    putStrLn $ "CPF: "
+    listaFuncionarios <- funcionarioLerArquivo
+    cpf <- getLine
+    putStrLn $ "Vaga: "
+    vaga <- getLine
+    let funcio = geraFuncionario (recuperaFuncionario listaFuncionarios cpf)
+    if (funcionarioCpf funcio == "") then do
+        putStrLn $ "CheckIn novo funcionario"
+        vagas <- lerEstacionamento ("dados/vagasFuncionarios.txt")
+        let vaga = alocaVaga (splitOn "\n" vagas)
+        salvaFuncionario (Funcionario cpf vaga)
+        atualizaVaga "True" (show vaga) ("dados/vagasFuncionarios.txt")
+        putStrLn $ "CheckIn feito!"
+    else do
+        putStrLn $ "CheckIn Funcionario ja cadastrado."
 
 checkInCliente:: IO()
 checkInCliente = do
@@ -97,18 +97,18 @@ checkOut = do
         atualizaVaga (formataVaga (Vaga (clienteVaga cliente) False False (""))) vagas (show(clienteVaga cliente))
         putStrLn $ clienteMostraCliente clienteAtualizado
 
-{-checkOutFuncionario:: IO()-}
---checkOutFuncionario = do
-    --putStrLn $ "Fazendo checkout do Funcionario"
-    --putStrLn $ "Digite seu CPF: "
-    --cpf <- getLine
-    --listaFuncionarios < funcionarioLerArquivo
-    --let funcionario = geraFuncionario (recuperaFuncionario listaFuncionarios cpf)
-    --if (funcionarioCpf funcionario) == "" then putStrLn $ "Funcionario nao cadastrado no sistema."
-    --else do
-        --atualizaFuncionario cpf (-1)
-        --atualizaVaga "False" (show funcionarioVaga) "dados/vagasFuncionarios.txt"
-        --putStrLn $ mostraFuncionario funcionario
+checkOutFuncionario:: IO()
+checkOutFuncionario = do
+    putStrLn $ "Fazendo checkout do Funcionario"
+    putStrLn $ "Digite seu CPF: "
+    cpf <- getLine
+    listaFuncionarios < funcionarioLerArquivo
+    let funcionario = geraFuncionario (recuperaFuncionario listaFuncionarios cpf)
+    if (funcionarioCpf funcionario) == "" then putStrLn $ "Funcionario nao cadastrado no sistema."
+    else do
+        atualizaFuncionario cpf (-1)
+        atualizaVaga "False" (show funcionarioVaga) "dados/vagasFuncionarios.txt"
+        putStrLn $ mostraFuncionario funcionario
 
 meuMenu:: Bool->IO()
 meuMenu True = return ()
@@ -146,5 +146,4 @@ meuMenu saida = do
                         meuMenu False
 
 inicializaEstacionamento = do
-    criaEstacionamento
     meuMenu False
