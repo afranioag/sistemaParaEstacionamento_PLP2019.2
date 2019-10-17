@@ -1,38 +1,28 @@
 import Cliente
-import Funcionario
+--import Funcionario
 import Estacionamento
 import Data.List.Split
 
-opcoes = putStrLn $ "1 - VIP\n2 - Normal"
 
-pegaStatus:: IO String
-pegaStatus = do
-    opcoes
-    opt <- readLn:: IO Int
-    if opt == 1 then return "vip"
-    else if opt == 2 then return "normal"
-        else pegaStatus
+{-checkInFuncionario:: IO()-}
+--checkInFuncionario = do
+    --putStrLn $ "Bem vindo ao checkin do funcionario."
+    --putStrLn $ "CPF: "
+    --listaFuncionarios <- funcionarioLerArquivo
+    --cpf <- getLine
+    --putStrLn $ "Vaga: "
+    --vaga <- getLine
+    --let funcio = geraFuncionario (recuperaFuncionario listaFuncionarios cpf)
+    --if (funcionarioCpf funcio == "") then do
+        --putStrLn $ "CheckIn novo funcionario"
+        --vagas <- lerEstacionamento ("dados/vagasFuncionarios.txt")
+        --let vaga = alocaVaga (splitOn "\n" vagas)
+        --salvaFuncionario (Funcionario cpf vaga)
+        --atualizaVaga "True" (show vaga) ("dados/vagasFuncionarios.txt")
+        --putStrLn $ "CheckIn feito!"
+    --else do
+        --putStrLn $ "CheckIn Funcionario ja cadastrado."
 
-checkInFuncionario:: IO()
-checkInFuncionario = do
-    putStrLn $ "Bem vindo ao checkin do funcionario."
-    putStrLn $ "CPF: "
-    listaFuncionarios <- funcionarioLerArquivo
-    cpf <- getLine
-    putStrLn $ "Vaga: "
-    vaga <- getLine
-    let funcio = geraFuncionario (recuperaFuncionario listaFuncionarios cpf)
-    if (funcionarioCpf funcio == "") then do
-        putStrLn $ "CheckIn novo funcionario"
-        vagas <- lerEstacionamento ("dados/vagasFuncionarios.txt")
-        let vaga = alocaVaga (splitOn "\n" vagas)
-        salvaFuncionario (Funcionario cpf vaga)
-        atualizaVaga "True" (show vaga) ("dados/vagasFuncionarios.txt")
-        putStrLn $ "CheckIn feito!"
-    else do
-        putStrLn $ "CheckIn Funcionario ja cadastrado."
-
--- Falta implementar o checkin caso o cliente ja exista.
 checkInCliente:: IO()
 checkInCliente = do
     putStrLn $ "Bem vindo ao checkIn do estacionamento."
@@ -46,22 +36,30 @@ checkInCliente = do
     hora <- getHoraAtual
     minuto <- getMinutoAtual
     let cliente = geraCliente (recuperaCliente clientes cpf)
+    vagas <- lerEstacionamento ("dados/vagas.txt")
+    let vaga = alocaVaga (splitOn "\n" vagas)
     if (clienteCpf cliente == "") then do
-        putStrLn $ "CheckIn novo cliente."
-        vagas <- lerEstacionamento ("dados/vagas.txt")
-        let vaga = alocaVaga (splitOn "\n" vagas)
-        salvaCliente (Cliente cpf placa veiculo "normal" 0.0 vaga hora minuto)
-        atualizaVaga "True" (show vaga) ("dados/vagas.txt")
-        putStrLn $ "CheckIn feito!"
+        if vaga == 0 then putStrLn $ " Não há vagas disponiveis."
+        else do
+            putStrLn $ "CheckIn novo cliente."
+            salvaCliente (Cliente cpf placa veiculo "normal" 0.0 vaga hora minuto 1 False)
+            atualizaVaga (formataVaga (Vaga vaga True True cpf)) vagas (show vaga)
+            putStrLn $ "CheckIn feito! Vaga -> " ++ (show vaga)
     else do
-        putStrLn $ "CheckIn cliente antigo."
-        let temp = clienteVaga
-        if temp != -1 then
+        if (clienteReserva cliente) then do
+            putStrLn $ "Cliente possui reserva. CheckIn feito. Vaga -> " ++ (show (clienteVaga cliente))
+            atualizaCliente cpf (formataCliente (Cliente (cpf) (placa) (veiculo) (clienteStatus cliente) 0.0 (clienteVaga cliente) hora minuto ((clienteVisitas cliente)+1) False))
+            atualizaVaga (formataVaga (Vaga vaga True True cpf)) vagas (show(clienteVaga cliente))
+        else do
+            if vaga == 0 then putStrLn $ "Não há vagas disponiveis."
+            else do
+                putStrLn $ "CheckIn feito. Vaga -> " ++ (show vaga)
+                atualizaVaga (formataVaga (Vaga vaga True True cpf)) vagas (show vaga)
+                atualizaCliente cpf (formataCliente (Cliente (cpf) (placa) (veiculo) (clienteStatus cliente) 0.0 (vaga) hora minuto ((clienteVisitas cliente)+1) False))
 
 
-
-reserva:: IO()
-reserva = do
+reservar:: IO()
+reservar = do
     putStrLn $ "Reserva de vaga para clientes VIP"
     putStrLn $ "Digite seu cpf: "
     cpf <- getLine
@@ -72,10 +70,15 @@ reserva = do
         let status = clienteStatus cliente
         if status == "normal" then putStrLn $ "Cliente não é VIP. Impossível fazer reserva"
         else do
-            vagas <- lerEstacionamento "dados/vagas.txt"
-            let vaga = alocaVaga (splitOn "\n" vagas)
-            atualizaVaga "True" (show vaga) "dados/vagas.txt"
-            atualizaCliente cpf vaga
+            if (clienteReserva cliente) || (clienteVaga cliente) /= 0 then putStrLn $ "Cliente ja possui reserva ou ja está no estacionamento."
+            else do
+                vagas <- lerEstacionamento "dados/vagas.txt"
+                let vaga = alocaVaga (splitOn "\n" vagas)
+                if vaga /= 0 then do
+                    putStrLn $ "Reserva feita. Vaga -> " ++ (show vaga)
+                    atualizaVaga (formataVaga (Vaga vaga False True cpf)) vagas (show vaga)
+                    atualizaCliente cpf (formataCliente (Cliente (cpf) ("") ("") (clienteStatus cliente) 0.0 vaga 0 0 (clienteVisitas cliente) True))
+                else putStrLn $ "Não foi possível fazer reserva. Não há vagas disponiveis"
 
 checkOut:: IO()
 checkOut = do
@@ -88,22 +91,24 @@ checkOut = do
     else do
         valor <- calculaValor cliente
         let clienteAtualizado = clienteAtualizaValor cliente valor
-        atualizaCliente cpf (-1)
-        atualizaVaga "False" (show clienteVaga) "dados/vagas.txt"
+        vagas <- lerEstacionamento "dados/vagas.txt"
+        let novoStatus = if (clienteVisitas cliente) > 5 then "vip" else "normal"
+        atualizaCliente cpf (formataCliente (Cliente cpf ("") ("") novoStatus 0.0 0 0 0 (clienteVisitas cliente) False))
+        atualizaVaga (formataVaga (Vaga (clienteVaga cliente) False False (""))) vagas (show(clienteVaga cliente))
         putStrLn $ clienteMostraCliente clienteAtualizado
 
-checkOutFuncionario:: IO()
-checkOutFuncionario = do
-    putStrLn $ "Fazendo checkout do Funcionario"
-    putStrLn $ "Digite seu CPF: "
-    cpf <- getLine
-    listaFuncionarios < funcionarioLerArquivo
-    let funcionario = geraFuncionario (recuperaFuncionario listaFuncionarios cpf)
-    if (funcionarioCpf funcionario) == "" then putStrLn $ "Funcionario nao cadastrado no sistema."
-    else do
-        atualizaFuncionario cpf (-1)
-        atualizaVaga "False" (show funcionarioVaga) "dados/vagasFuncionarios.txt"
-        putStrLn $ mostraFuncionario funcionario
+{-checkOutFuncionario:: IO()-}
+--checkOutFuncionario = do
+    --putStrLn $ "Fazendo checkout do Funcionario"
+    --putStrLn $ "Digite seu CPF: "
+    --cpf <- getLine
+    --listaFuncionarios < funcionarioLerArquivo
+    --let funcionario = geraFuncionario (recuperaFuncionario listaFuncionarios cpf)
+    --if (funcionarioCpf funcionario) == "" then putStrLn $ "Funcionario nao cadastrado no sistema."
+    --else do
+        --atualizaFuncionario cpf (-1)
+        --atualizaVaga "False" (show funcionarioVaga) "dados/vagasFuncionarios.txt"
+        --putStrLn $ mostraFuncionario funcionario
 
 meuMenu:: Bool->IO()
 meuMenu True = return ()
@@ -122,7 +127,7 @@ meuMenu saida = do
     else
         if opt == "2"
             then do
-                putStrLn $ "reservar"
+                reservar
                 meuMenu False
         else
             if opt == "3"
@@ -132,7 +137,6 @@ meuMenu saida = do
             else
                 if opt == "4"
                     then do
-                        checkInFuncionario
                         meuMenu False
                 else
                     if opt == "5"
