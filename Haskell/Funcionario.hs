@@ -35,7 +35,7 @@ mostraFuncionario:: Funcionario->String
 mostraFuncionario (Funcionario a b) = "\nCPF: " ++ a ++ "\nVaga: " ++ (show b)
 
 geraFuncionario:: String->Funcionario
-geraFuncionario funcionario  = 
+geraFuncionario funcionario  =
     if funcionario /= "" then(Funcionario (dados !! 0) (read (dados !! 1)::Int))
     else (Funcionario "" 0)
     where
