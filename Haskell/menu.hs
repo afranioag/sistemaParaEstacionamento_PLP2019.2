@@ -1,4 +1,5 @@
 import Cliente
+import Funcionario
 import Estacionamento
 import Data.List.Split
 
@@ -11,6 +12,25 @@ pegaStatus = do
     if opt == 1 then return "vip"
     else if opt == 2 then return "normal"
         else pegaStatus
+
+checkInFuncionario:: IO()
+checkInFuncionario = do
+    putStrLn $ "Bem vindo ao checkin do funcionario."
+    putStrLn $ "CPF: "
+    listaFuncionarios <- funcionarioLerArquivo
+    cpf <- getLine
+    putStrLn $ "Vaga: "
+    vaga <- getLine
+    let funcio = geraFuncionario (recuperaFuncionario listaFuncionarios cpf)
+    if (funcionarioCpf funcio == "") then do
+        putStrLn $ "CheckIn novo funcionario"
+        vagas <- lerEstacionamento ("dados/vagasFuncionarios.txt")
+        let vaga = alocaVaga (splitOn "\n" vagas)
+        salvaFuncionario (Funcionario cpf vaga)
+        atualizaVaga "True" (show vaga) ("dados/vagasFuncionarios.txt")
+        putStrLn $ "CheckIn feito!"
+    else do
+        putStrLn $ "CheckIn Funcionario ja cadastrado."
 
 -- Falta implementar o checkin caso o cliente ja exista.
 checkInCliente:: IO()
@@ -72,6 +92,19 @@ checkOut = do
         atualizaVaga "False" (show clienteVaga) "dados/vagas.txt"
         putStrLn $ clienteMostraCliente clienteAtualizado
 
+checkOutFuncionario:: IO()
+checkOutFuncionario = do
+    putStrLn $ "Fazendo checkout do Funcionario"
+    putStrLn $ "Digite seu CPF: "
+    cpf <- getLine
+    listaFuncionarios < funcionarioLerArquivo
+    let funcionario = geraFuncionario (recuperaFuncionario listaFuncionarios cpf)
+    if (funcionarioCpf funcionario) == "" then putStrLn $ "Funcionario nao cadastrado no sistema."
+    else do
+        atualizaFuncionario cpf (-1)
+        atualizaVaga "False" (show funcionarioVaga) "dados/vagasFuncionarios.txt"
+        putStrLn $ mostraFuncionario funcionario
+
 meuMenu:: Bool->IO()
 meuMenu True = return ()
 meuMenu saida = do
@@ -99,7 +132,7 @@ meuMenu saida = do
             else
                 if opt == "4"
                     then do
-                        --checkInFuncionario
+                        checkInFuncionario
                         meuMenu False
                 else
                     if opt == "5"
