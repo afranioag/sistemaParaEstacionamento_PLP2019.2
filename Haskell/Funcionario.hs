@@ -8,7 +8,7 @@ module Funcionario(
     alteraVagaFuncionario
     salvaFuncionario,
     recuperaFuncionario,
-    lerArquivo,
+    funcionarioLerArquivo,
     atualizaFuncionario
 )
 
@@ -48,34 +48,34 @@ isFuncionario (x:xs) key =
     else isFuncionario xs key
 
 recuperaFuncionario:: String->String-> String
-recuperaFuncionario clientes cpf = do
+recuperaFuncionario funcionario cpf = do
     encontrado
     where
-        encontrado = isFuncionario (splitOn "\n" clientes) cpf
+        encontrado = isFuncionario (splitOn "\n" funcionario) cpf
 
 
-lerArquivo::IO String
-lerArquivo = readFile "dados/clientes.txt"
+funcionarioLerArquivo::IO String
+funcionarioLerArquivo = readFile "dados/funcionarios.txt"
 
 salvaFuncionario::Cliente->IO()
-salvaFuncionario cliente  = do
-    clientes <- lerArquivo
-    let flag = recuperaFuncionario clientes (clienteCpf cliente)
-    if flag /= "" then putStrLn $ "Cliente já existe"
+salvaFuncionario funcionario  = do
+    funcionario <- lerArquivo
+    let flag = recuperaFuncionario funcionario (funcionarioCpf funcionario)
+    if flag /= "" then putStrLn $ "Funcionario já existe"
     else do
-        appendFile "dados/clientes.txt" $ formataCliente cliente
+        appendFile "dados/funcinarios.txt" $ formataFuncionario funcionario
 
 atualizaFuncionarioAux::String->[String]->Int->[String]
 atualizaFuncionarioAux cpf [] vaga = []
 atualizaFuncionarioAux cpf (x:xs) vaga =
-    if (cliente !! 0) == cpf then (formataCliente (clienteAlteraVaga vaga (geraCliente x))):atualizaFuncionarioAux cpf xs
+    if (funcionario !! 0) == cpf then (formataFuncionario (clienteAlteraVaga vaga (geraFuncionario x))):atualizaFuncionarioAux cpf xs
     else x:atualizaFuncionarioAux cpf xs
-    where cliente = splitOn "-" x
+    where funcionario = splitOn "-" x
 
 atualizaFuncionario::String->Int->IO()
 atualizaFuncionario cpf vaga= do
-    clientes <- lerArquivo
-    let clienteAtualizado = atualizaFuncionarioAux cpf (splitOn "\n" clientes) vaga
-    removeFile "dados/clientes.txt"
-    writeFile "dados/clientes.txt" $ init(unlines clienteAtualizado)
+    funcionario <- lerArquivo
+    let funcionarioAtualizado = atualizaFuncionarioAux cpf (splitOn "\n" funcionario) vaga
+    removeFile "dados/funcionarios.txt"
+    writeFile "dados/funcionarios.txt" $ init(unlines funcionarioAtualizado)
 
