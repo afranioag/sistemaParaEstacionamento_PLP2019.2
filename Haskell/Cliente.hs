@@ -22,7 +22,7 @@ where
 import  Data.List.Split
 import System.Directory
 
-data Cliente = Cliente{cpf:: String, placa::String, veiculo::String, status::String, valor::Float, vaga::Int, hora::Int, minuto::Int,visitas::Int, reserva::Bool} | Funcionario{cpf::String, vaga::Int}deriving (Show)
+data Cliente = Cliente{cpf:: String, placa::String, veiculo::String, status::String, valor::Float, vaga::Int, hora::Int, minuto::Int,visitas::Int, reserva::Bool} deriving (Show)
 
 clienteAlteraVaga::Int->Cliente->Cliente
 clienteAlteraVaga vaga (Cliente a b c d e f g h i j) = ((Cliente a b c d e vaga g h i j))
