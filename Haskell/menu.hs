@@ -90,14 +90,16 @@ checkOut = do
     clientes <- lerArquivo
     let cliente = geraCliente (recuperaCliente clientes cpf)
     if (clienteCpf cliente) == "" then putStrLn $ "Cliente não existe."
-    else do
-        valor <- calculaValor cliente
-        let clienteAtualizado = clienteAtualizaValor cliente valor
-        vagas <- lerEstacionamento "dados/vagas.txt"
-        let novoStatus = if (clienteVisitas cliente) > 5 then "vip" else "normal"
-        atualizaCliente cpf (formataCliente (Cliente cpf ("") ("") novoStatus 0.0 0 0 0 (clienteVisitas cliente) False))
-        atualizaVaga (formataVaga (Vaga (clienteVaga cliente) False False (""))) vagas (show(clienteVaga cliente))
-        putStrLn $ clienteMostraCliente clienteAtualizado
+    else
+        if (clienteVaga cliente) == 0 then putStrLn $ "Cliente não fez checkIn."
+        else do
+            valor <- calculaValor cliente
+            let clienteAtualizado = clienteAtualizaValor cliente valor
+            vagas <- lerEstacionamento "dados/vagas.txt"
+            let novoStatus = if (clienteVisitas cliente) > 5 then "vip" else "normal"
+            atualizaCliente cpf (formataCliente (Cliente cpf ("") ("") novoStatus 0.0 0 0 0 (clienteVisitas cliente) False))
+            atualizaVaga (formataVaga (Vaga (clienteVaga cliente) False False (""))) vagas (show(clienteVaga cliente))
+            putStrLn $ clienteMostraCliente clienteAtualizado
 
 checkOutFuncionario:: IO()
 checkOutFuncionario = do
@@ -147,7 +149,7 @@ meuMenu saida = do
                         then do
                             checkOutFuncionario
                             meuMenu False
-                        else 
+                        else
                             if opt == "6"
                                 then meuMenu True
                             else do
