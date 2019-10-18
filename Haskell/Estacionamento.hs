@@ -7,6 +7,7 @@ module Estacionamento(
     formataVaga,
     criaEstacionamento,
     atualizaVaga,
+    atualizaVagaF,
     lerEstacionamento,
     calculaValor
     --reservaVaga,
@@ -61,6 +62,14 @@ atualizaVagaAux vaga (x:xs) id =
     where
         antiga = splitOn "-" x
         nova = splitOn "-" vaga
+
+        
+atualizaVagaF::String->String->String->IO()
+atualizaVagaF vaga estacionamento id = do
+    let novoEstacionamento = atualizaVagaAux vaga (splitOn "\n" estacionamento) id
+    removeFile "dados/vagasFuncionarios.txt"
+    writeFile "dados/vagasFuncionarios.txt" $ unlines novoEstacionamento
+
 
 atualizaVaga::String->String->String->IO()
 atualizaVaga vaga estacionamento id = do
