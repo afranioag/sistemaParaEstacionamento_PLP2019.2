@@ -117,7 +117,8 @@ meuMenu saida = do
     putStrLn $ "2 - Reservar"
     putStrLn $ "3 - CheckOut"
     putStrLn $ "4 - CheckIn Funcionario"
-    putStrLn $ "5 - Sair"
+    putStrLn $ "5 - CheckOut Funcionario"
+    putStrLn $ "6 - Sair"
     putStr $ "opt>> "
     opt <- getLine
     if opt == "1"
@@ -137,13 +138,19 @@ meuMenu saida = do
             else
                 if opt == "4"
                     then do
+                        checkInFuncionario
                         meuMenu False
                 else
                     if opt == "5"
-                        then meuMenu True
-                    else do
-                        putStrLn $ "Opção invalida"
-                        meuMenu False
+                        then do
+                            checkOutFuncionario
+                            meuMenu False
+                        else 
+                            if opt == "6"
+                                then then meuMenu True
+                            else do
+                                putStrLn $ "Opção invalida"
+                                meuMenu False
 
 inicializaEstacionamento = do
     meuMenu False
