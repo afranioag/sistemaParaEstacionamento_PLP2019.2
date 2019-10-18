@@ -42,6 +42,13 @@ getHoraAtual = do
 getClienteVaga::Vaga->String
 getClienteVaga (Vaga _ _ _ cliente) = cliente
 
+--Ira fazer a contagem das vagas restantes.
+contaVaga :: [String]-> Int
+contaVaga [] = 0
+contaVaga (x:xs) = if (vaga !! 0) == "True" ||  (vaga !! 2) == "True" then 1 + contaVaga xs
+else 0 + contaVaga xs
+    where vaga = splitOn "-" x
+
 alocaVaga::[String]->Int
 alocaVaga [] = 0
 alocaVaga (x:xs) = if (vaga !! 1) == "False" && (vaga !! 2) == "False" then (read (vaga !! 0)::Int) else alocaVaga xs
