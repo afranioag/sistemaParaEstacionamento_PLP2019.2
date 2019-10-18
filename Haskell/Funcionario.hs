@@ -63,7 +63,7 @@ salvaFuncionario funcionario  = do
     let flag = recuperaFuncionario funcionarioIO (funcionarioCpf funcionario)
     if flag /= "" then putStrLn $ "Funcionario já existe"
     else do
-        appendFile "dados/funcinarios.txt" $ formataFuncionario funcionario
+        appendFile "dados/funcionarios.txt" $ formataFuncionario funcionario
 
 atualizaFuncionarioAux::String->[String]->String->[String]
 atualizaFuncionarioAux cpf [] funcionario = []
