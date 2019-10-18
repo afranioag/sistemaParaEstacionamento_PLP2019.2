@@ -1,5 +1,5 @@
 import Cliente
---import Funcionario
+import Funcionario
 import Estacionamento
 import Data.List.Split
 
@@ -102,12 +102,12 @@ checkOutFuncionario = do
     putStrLn $ "Fazendo checkout do Funcionario"
     putStrLn $ "Digite seu CPF: "
     cpf <- getLine
-    listaFuncionarios < funcionarioLerArquivo
+    listaFuncionarios <- funcionarioLerArquivo
     let funcionario = geraFuncionario (recuperaFuncionario listaFuncionarios cpf)
     if (funcionarioCpf funcionario) == "" then putStrLn $ "Funcionario nao cadastrado no sistema."
     else do
-        atualizaFuncionario cpf (-1)
-        atualizaVaga "False" (show funcionarioVaga) "dados/vagasFuncionarios.txt"
+        vagas <- lerEstacionamento "dados/vagasFuncionarios.txt"
+        atualizaVaga (formataVaga(Vaga (funcionarioVaga funcionario) False False (""))) vagas (show(funcionarioVaga funcionario))
         putStrLn $ mostraFuncionario funcionario
 
 meuMenu:: Bool->IO()
