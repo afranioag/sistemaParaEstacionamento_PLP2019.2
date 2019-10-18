@@ -16,12 +16,14 @@ checkInFuncionario = do
     if (funcionarioCpf funcio == "") then do
         putStrLn $ "CheckIn novo funcionario"
         vagas <- lerEstacionamento ("dados/vagasFuncionarios.txt")
-        let vaga = alocaVaga (splitOn "\n" vagas)
-        salvaFuncionario (Funcionario cpf vaga)
-        atualizaVaga "True" (show vaga) ("dados/vagasFuncionarios.txt")
+        salvaFuncionario (funcio)
+        atualizaVagaF (formataVaga(Vaga (funcionarioVaga funcio) True True cpf)) vagas (show(funcionarioVaga funcio))
         putStrLn $ "CheckIn feito!"
     else do
         putStrLn $ "CheckIn Funcionario ja cadastrado."
+        vagas <- lerEstacionamento ("dados/vagasFuncionarios.txt")
+        atualizaVagaF (formataVaga(Vaga (funcionarioVaga funcio) True True cpf)) vagas (show(funcionarioVaga funcio))
+
 
 checkInCliente:: IO()
 checkInCliente = do
@@ -107,7 +109,7 @@ checkOutFuncionario = do
     if (funcionarioCpf funcionario) == "" then putStrLn $ "Funcionario nao cadastrado no sistema."
     else do
         vagas <- lerEstacionamento "dados/vagasFuncionarios.txt"
-        atualizaVaga (formataVaga(Vaga (funcionarioVaga funcionario) False False (""))) vagas (show(funcionarioVaga funcionario))
+        atualizaVagaF (formataVaga(Vaga (funcionarioVaga funcionario) False False (""))) vagas (show(funcionarioVaga funcionario))
         putStrLn $ mostraFuncionario funcionario
 
 meuMenu:: Bool->IO()
@@ -147,7 +149,7 @@ meuMenu saida = do
                             meuMenu False
                         else 
                             if opt == "6"
-                                then then meuMenu True
+                                then meuMenu True
                             else do
                                 putStrLn $ "Opção invalida"
                                 meuMenu False
