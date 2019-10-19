@@ -6,19 +6,22 @@ import Data.List.Split
 
 checkInFuncionario:: IO()
 checkInFuncionario = do
-   putStrLn $ "Bem vindo ao checkin do funcionario."
-   putStrLn $ "CPF: "
-   listaFuncionarios <- funcionarioLerArquivo
-   cpf <- getLine
-   putStrLn $ "Vaga: "
-   vaga <- getLine
-   let funcio = geraFuncionario (recuperaFuncionario listaFuncionarios cpf)
-   if (funcionarioCpf funcio == "") then do
-       putStrLn $ "Funcionario nao esta cadastrado!"
-   else do
-       putStrLn $ "CheckIn Funcionario ja cadastrado.\nVaga alocada."
-       vagas <- lerEstacionamento ("dados/vagasFuncionarios.txt")
-       atualizaVagaF (formataVaga(Vaga (funcionarioVaga funcio) True True cpf)) vagas (show(funcionarioVaga funcio))
+  putStrLn $ "Bem vindo ao checkin do funcionario."
+  putStrLn $ "CPF: "
+  listaFuncionarios <- funcionarioLerArquivo
+  cpf <- getLine
+  putStrLn $ "Vaga: "
+  vaga <- readLn::IO Int
+  let funcio = geraFuncionario (recuperaFuncionario listaFuncionarios cpf)
+  if (funcionarioCpf funcio == "") then do
+      putStrLn $ "Funcionario nao esta cadastrado!"
+  else do
+      if (funcionarioVaga funcio) /= 0 then putStrLn $ "Funcionario ja esta alocado"
+      else do
+        putStrLn $ "CheckIn Funcionario ja cadastrado.\nVaga alocada."
+        vagas <- lerEstacionamento ("dados/vagasFuncionarios.txt")
+        atualizaFuncionario cpf (formataFuncionario (Funcionario cpf vaga))
+        atualizaVagaF (formataVaga(Vaga vaga True True cpf)) vagas (show(funcionarioVaga funcio))
 
 checkInCliente:: IO()
 checkInCliente = do
@@ -104,18 +107,20 @@ checkOutFuncionario = do
    listaFuncionarios <- funcionarioLerArquivo
    let funcionario = geraFuncionario (recuperaFuncionario listaFuncionarios cpf)
    if (funcionarioCpf funcionario) == "" then putStrLn $ "Funcionario nao cadastrado no sistema."
-   else
-       if (funcionarioVaga funcionario) == 0 then putStrLn $ "Funcionario não fez checkIn."
-       else do
-           vagas <- lerEstacionamento "dados/vagasFuncionarios.txt"
-           let funcioAtualizado = alteraVagaFuncionario(0 funcionario)
-           atualizaFuncionario (formataFuncionario funcioAtualizado)
-           atualizaVagaF (formataVaga(Vaga (funcionarioVaga funcioAtualizado) False False (""))) vagas (show(funcionarioVaga funcioAtualizado))
-           putStrLn $ mostraFuncionario funcionario
+   else do
+        if (funcionarioVaga funcionario) == 0 then putStrLn $ "Funcionario nao esta alocado."
+        else do
+            vagas <- lerEstacionamento "dados/vagasFuncionarios.txt"
+            putStrLn $ mostraFuncionario funcionario
+            atualizaFuncionario cpf (formataFuncionario(Funcionario cpf 0))
+            atualizaVagaF (formataVaga(Vaga (funcionarioVaga funcionario) False False (""))) vagas (show(funcionarioVaga funcionario))
+            putStrLn $ "Checkout realizado"
 
 meuMenu:: Bool->IO()
 meuMenu True = return ()
 meuMenu saida = do
+    vagas <- lerEstacionamento "dados/vagas.txt"
+    --putStrLn $ "Vagas disponiveis: " ++ (show (contaVaga (splitOn "\n" vagas)))
     putStrLn $ "1 - CheckIn"
     putStrLn $ "2 - Reservar"
     putStrLn $ "3 - CheckOut"

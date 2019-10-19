@@ -39,7 +39,7 @@ geraFuncionario funcionario  =
     if funcionario /= "" then(Funcionario (dados !! 0) (read (dados !! 1)::Int))
     else (Funcionario "" 0)
     where
-        dados = splitOn " " funcionario
+        dados = splitOn "-" funcionario
 
 isFuncionario:: [String]->String->String
 isFuncionario [] key = ""

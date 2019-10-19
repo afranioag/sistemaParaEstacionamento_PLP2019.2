@@ -1,5 +1,6 @@
 module Estacionamento(
     Vaga(..),
+    contaVaga,
     getHoraAtual,
     getMinutoAtual,
     recuperaVagaReservada,
@@ -39,9 +40,6 @@ getHoraAtual = do
     let (TimeOfDay hour minute second) = localTimeOfDay $ utcToLocalTime timezone now
     return hour
 
-getClienteVaga::Vaga->String
-getClienteVaga (Vaga _ _ _ cliente) = cliente
-
 alocaVaga::[String]->Int
 alocaVaga [] = 0
 alocaVaga (x:xs) = if (vaga !! 1) == "False" && (vaga !! 2) == "False" then (read (vaga !! 0)::Int) else alocaVaga xs
@@ -63,7 +61,7 @@ atualizaVagaAux vaga (x:xs) id =
         antiga = splitOn "-" x
         nova = splitOn "-" vaga
 
-        
+
 atualizaVagaF::String->String->String->IO()
 atualizaVagaF vaga estacionamento id = do
     let novoEstacionamento = atualizaVagaAux vaga (splitOn "\n" estacionamento) id
@@ -110,3 +108,8 @@ calculaValor (Cliente _ _ veiculo status  _ _ hora _ _ _) = do
     let diff = temp - hora
     let valor = calculaValorAux veiculo status diff
     return valor
+
+contaVaga::[String] -> Int
+contaVaga [] = 0
+contaVaga (x:xs) = if (vaga !! 1) == "False" then (1 + contaVaga xs) else contaVaga xs
+   where vaga = splitOn "-" x
