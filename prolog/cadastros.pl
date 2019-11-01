@@ -25,18 +25,19 @@ write("2 - Reservar \n"),
 write("3 - CheckOut\n"),
 write("4 - CheckIn Funcionario\n"),
 write("5 - CheckOut Funcionario\n"),
-read(X), (X =:= 1 -> checkin; X =:= 2 -> reserva; X =:= 3 -> checkout;
+readNum(X), (X =:= 1 -> checkin; X =:= 2 -> reserva; X =:= 3 -> checkout;
 X=:=4 -> checkinFunc; X=:=5 -> checkoutFunc).
 
 checkin :- 
 write("CPF \n"),
-	read(X), (XX is X),
+	readNum(X), (XX is X),
+
 write("placa \n"),
-	read(Y), (YY is Y),
+	read_line_to_codes(user_input, Entrada), atom_string(Entrada, YY),
 write("Veiculo \n"),
-	read(V), (VV is V),
+	read_line_to_codes(user_input, Entrada), atom_string(Entrada, VV),
 write("HORA entrada \n"),
-	read(H),(HH is H),
+	read_line_to_codes(user_input, Entrada), atom_string(Entrada, HH),
 	clientes(XX,YY,VV,HH).
 
 
@@ -50,7 +51,7 @@ Ainda sendo possivel colocar o valor a ser pago e o tempo de permanencia
 */
 
 checkout :- write("Informe o CPF: "),
-read(C), (checkout(C)).
+readNum(C), (checkout(C)).
 
 checkout(C) :- clientes(C, P, V, H),
 	write("Saida do cliente: "),
@@ -80,6 +81,14 @@ checkoutFunc(CPF) :- funcionario(CPF, V, H),
 	write(V),
 	write("\n Entrada em: "),
 	write(H).
+
+readString(X):-
+    read_line_to_string(user_input, X).
+
+readNum(X):-
+	read_line_to_codes(user_input,Y),
+	string_to_atom(Y, Z),
+	atom_number(Z,X).
 
 
 
