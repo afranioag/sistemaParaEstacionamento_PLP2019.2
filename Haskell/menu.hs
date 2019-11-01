@@ -57,13 +57,6 @@ checkInCliente = do
                 atualizaVaga (formataVaga (Vaga vaga True True cpf)) vagas (show vaga)
                 atualizaCliente cpf (formataCliente (Cliente (cpf) (placa) (veiculo) (clienteStatus cliente) 0.0 (vaga) hora minuto ((clienteVisitas cliente)+1) False))
 
-
-vagasLivres :: IO() 
-vagasLivres do =
-    vagas <- lerEstacionamento "dados/vagas.txt"
-    let vaga = contaVaga (splitOn "\n" vagas)
-    return vaga
-
 reservar:: IO()
 reservar = do
     putStrLn $ "Reserva de vaga para clientes VIP"
