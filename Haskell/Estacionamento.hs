@@ -1,6 +1,5 @@
 module Estacionamento(
     Vaga(..),
-    contaVaga,
     getHoraAtual,
     getMinutoAtual,
     recuperaVagaReservada,
@@ -39,6 +38,10 @@ getHoraAtual = do
     timezone <- getCurrentTimeZone
     let (TimeOfDay hour minute second) = localTimeOfDay $ utcToLocalTime timezone now
     return hour
+
+getClienteVaga::Vaga->String
+getClienteVaga (Vaga _ _ _ cliente) = cliente
+
 
 alocaVaga::[String]->Int
 alocaVaga [] = 0
@@ -108,8 +111,3 @@ calculaValor (Cliente _ _ veiculo status  _ _ hora _ _ _) = do
     let diff = temp - hora
     let valor = calculaValorAux veiculo status diff
     return valor
-
-contaVaga::[String] -> Int
-contaVaga [] = 0
-contaVaga (x:xs) = if (vaga !! 1) == "False" then (1 + contaVaga xs) else contaVaga xs
-   where vaga = splitOn "-" x

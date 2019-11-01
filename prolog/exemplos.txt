@@ -1,0 +1,4 @@
+pequeno exemplo de como lidar com variaveis.
+Menus. Chamadas de funções. 
+
+Porem ainda não to sabendo informar um tipo string, para poder passar na hora do cadastro.
