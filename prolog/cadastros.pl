@@ -11,7 +11,7 @@ funcionario(8877, "A002", "14:00").
 veiculos("MOTO", 5, 2).
 veiculos("CARRO", 10, 2).
 veiculos("CAMINHAO", 20, 3).
- 
+
 %veiculo(id, modelo).
 veiculo(1, "MOTO").
 veiculo(2, "CARRO").
@@ -28,7 +28,7 @@ write("5 - CheckOut Funcionario\n"),
 readNum(X), (X =:= 1 -> checkin; X =:= 2 -> reserva; X =:= 3 -> checkout;
 X=:=4 -> checkinFunc; X=:=5 -> checkoutFunc).
 
-checkin :- 
+checkin :-
 write("CPF \n"),
 	readNum(X), (XX is X),
 
@@ -46,7 +46,7 @@ write("HORA entrada \n"),
 C = cfp do cliente,
 P = placa do veiculo,
 V = veiculo modelo,
-H = hora de entrada. 
+H = hora de entrada.
 Ainda sendo possivel colocar o valor a ser pago e o tempo de permanencia
 */
 
@@ -89,6 +89,3 @@ readNum(X):-
 	read_line_to_codes(user_input,Y),
 	string_to_atom(Y, Z),
 	atom_number(Z,X).
-
-
-
