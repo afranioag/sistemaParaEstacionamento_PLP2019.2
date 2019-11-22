@@ -1,9 +1,14 @@
-:- module(estacionamento,[cria_estacionamento/1,aloca_vaga/1,atualiza_vaga/2]).
+:- module(estacionamento,[cria_estacionamento/1,aloca_vaga/1,atualiza_vaga/2,calcula_valor/2]).
+
+veiculo("carro",10).
+veiculo("moto",6).
+veiculo("caminhao",15).
+desconto(0.8).
 
 tamanho(10000).
 
 formata_vaga(S,L) :-
-    format(string(S),'~d-~d-~d-~s',L).
+    format(string(S),'~s-~d-~d-~s',L).
 
 cria_vagas(T,I,I).
 cria_vagas([H|T],I,Max) :-
@@ -35,12 +40,22 @@ vaga([X|Xs],Vaga) :-
     split_string(X,"-","",X1),
     nth0(1,X1,Ocupada),nth0(2,X1,Reserva),
     Ocupada == "0", Reserva == "0", nth0(0,X1,V),
-    Vaga = V.
+    Vaga = V,!.
 vaga([X|Xs],Vaga):- vaga(Xs,Vaga).
 
 aloca_vaga(Vaga) :-
     ler_arquivo(Vagas),
     vaga(Vagas,Vaga).
+
+recupera([X|Xs],Cpf,Vaga) :-
+    split_string(X,"-","",X1),
+    nth0(3,X1,C), C == Cpf, nth0(0,X1,Vaga),!.
+recupera([X|Xs],Cpf,Vaga) :- recupera(Xs,Cpf,Vaga).
+recupera([],_,0).
+
+recupera_vaga_reservada(Cpf,Vaga) :-
+    ler_arquivo(Vagas),
+    recupera(Vagas,Cpf,Vaga).
 
 atualiza([],_,_,[]).
 atualiza([X|Xs],Vaga,NovaVaga,[NovaVaga1|Resultado]) :-
@@ -48,7 +63,7 @@ atualiza([X|Xs],Vaga,NovaVaga,[NovaVaga1|Resultado]) :-
     nth0(0,X1,V), Vaga == V,
     formata_vaga(NovaVaga1,NovaVaga),
     atualiza(Xs,Vaga,NovaVaga,Resultado).
-atualiza([X|Xs],Vaga,NovaVaga,[X|Resultado]).
+atualiza([X|Xs],Vaga,NovaVaga,[X|Resultado]) :- atualiza(Xs,Vaga,NovaVaga,Resultado).
 
 atualiza_vaga(Vaga,NovaVaga) :-
     ler_arquivo(Vagas),
@@ -57,3 +72,17 @@ atualiza_vaga(Vaga,NovaVaga) :-
     open('dados/vagas.txt',write,File),
     write(File,S),
     close(File).
+
+calcula(Veiculo,Tempo,Valor,"normal") :-
+    veiculo(Veiculo,P), Tempo > 0 -> Valor is P * Tempo;
+    Valor is P * 1.
+calcula(Veiculo,Tempo,Valor,"vip") :-
+    veiculo(Veiculo,P), desconto(D), Tempo > 0 ->
+    Valor is P * Tempo * D; Valor is P * 1 * D.
+
+calcula_valor(Cliente,Valor) :-
+    nth0(2,Cliente,V),nth0(3,Cliente,S),nth0(6,Cliente,T1),
+    get_time(T),
+    stamp_date_time(T,date(_,_,_,H,_,_,_,_,_),'UTC'),
+    Tempo is H - T1,
+    calcula(V,Tempo,Valor,S).

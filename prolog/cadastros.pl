@@ -1,21 +1,5 @@
-% clientes(CPF, placa, carro, horaEntrada).
-clientes(001, "mou4578", "MOTO", "14:30").
-clientes(002, "abc1234", "CARRO", "14:30").
-clientes(003, "aab4567", "CAMINHAO", "14:30").
-
-% funcionario(CPF, VAGA, HoraEntrada).
-funcionario(9988, "A001", "06:00").
-funcionario(8877, "A002", "14:00").
-
-% veiculos(modelo, preco, acrescimo).
-veiculos("MOTO", 5, 2).
-veiculos("CARRO", 10, 2).
-veiculos("CAMINHAO", 20, 3).
-
-%veiculo(id, modelo).
-veiculo(1, "MOTO").
-veiculo(2, "CARRO").
-veiculo(3, "CAMINHAO").
+:- use_module(cliente).
+:- use_module(estacionamento).
 
 
 menu :- repeat,
@@ -28,19 +12,49 @@ write("5 - CheckOut Funcionario\n"),
 readNum(X), (X =:= 1 -> checkin; X =:= 2 -> reserva; X =:= 3 -> checkout;
 X=:=4 -> checkinFunc; X=:=5 -> checkoutFunc).
 
-checkin :-
-write("CPF \n"),
-	readNum(X), (XX is X),
-
-write("placa \n"),
-	read_line_to_codes(user_input, Entrada), atom_string(Entrada, YY),
-write("Veiculo \n"),
-	read_line_to_codes(user_input, Entrada), atom_string(Entrada, VV),
-write("HORA entrada \n"),
-	read_line_to_codes(user_input, Entrada), atom_string(Entrada, HH),
-	clientes(XX,YY,VV,HH).
-
-
+% falta adicionar o tempo de chegada do cliente
+checkin_cliente :-
+    write("Bem vindo ao checkIn do estacionamento."),nl,
+    writeln("CPF: "),
+    read_line_to_codes(user_input,Cpf),atom_string(Cpf,Cpf1),
+    writeln("Placa: "),
+    read_line_to_codes(user_input,Placa),atom_string(Placa,Placa1),
+    writeln("Veiculo: "),
+    read_line_to_codes(user_input,Veiculo),atom_string(Veiculo,Veiculo1),
+    recupera_cliente(Cpf1,Cliente),
+    aloca_vaga(Vaga),
+    (
+        Cliente == [] ->
+            (
+                Vaga == 0 -> write("Nao ha vagas disponiveis."),nl;
+                write("CheckIn novo cliente."),nl,Hora = 21,
+                NovoCliente = [Cpf1,Placa1,Veiculo1,"normal",0,Vaga,Hora,1,"0"],
+                adiciona_cliente(NovoCliente),
+                NovaVaga = [Vaga,1,1,Cpf1],
+                atualiza_vaga(Vaga,NovaVaga),
+                write("CheckIn feito! Vaga ->i "),write(Vaga),nl
+            )
+        ;   (
+                get_reserva(Cliente,R),
+                R == "1" ->
+                    write("Cliente possui reserva. Checkin feito."),
+                    write(" Vaga -> "), get_vaga(Cliente,V2), write(V2),
+                    get_status(Cliente,Status),get_visitas(Cliente,Visitas),
+                    NovoCliente = [Cpf1,Placa1,Veiculo1,Status,0,V2,21,Visitas,"0"],
+                    atualiza_cliente(Cpf1,NovoCliente),
+                    atualiza_vaga(V2,[V2,1,1,Cpf1])
+                ;
+                    Vaga == 0 -> write("Nao ha vagas disponiveis"),nl;
+                    write("CheckIn feito. Vaga -> "),
+                    write(Vaga),
+                    nl,
+                    NovaVaga = [Vaga,1,1,Cpf1],
+                    atualiza_vaga(Vaga,NovaVaga),
+                    get_status(Cliente,Status),get_visitas(Cliente,Visitas),
+                    NovoCliente = [Cpf1,Placa1,Veiculo1,Status,0,Vaga,21,2,"0"],
+                    atualiza_cliente(Cpf1,NovoClience)
+            )
+    ).
 
 /* ----------------------------------------------
 C = cfp do cliente,
@@ -81,6 +95,9 @@ checkoutFunc(CPF) :- funcionario(CPF, V, H),
 	write(V),
 	write("\n Entrada em: "),
 	write(H).
+
+main :-
+    ler_cliente.
 
 readString(X):-
     read_line_to_string(user_input, X).
