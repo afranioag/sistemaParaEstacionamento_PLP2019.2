@@ -1,5 +1,6 @@
 :- use_module(cliente).
 :- use_module(estacionamento).
+:- use_module(funcionario).
 
 
 menu :- repeat,
@@ -12,6 +13,24 @@ write("5 - CheckOut Funcionario\n"),
 readNum(X), (X =:= 1 -> checkin; X =:= 2 -> reserva; X =:= 3 -> checkout;
 X=:=4 -> checkinFunc; X=:=5 -> checkoutFunc).
 
+checkin_funcionario :-
+    write("Bem vindo ao checkin do funcionario."),nl,
+    write("CPF: "),
+    read_line_to_codes(user_input,Cpf),atom_string(Cpf,Cpf1),
+    mostra_vagas_livres(VagasLivres),nl,
+    write(VagasLivres),nl,
+    write("Vaga: "),
+    read_line_to_codes(user_input,Vaga),atom_string(Vaga,Vaga1),
+    recupera_funcionario(Cpf1,Funcionario),
+    (
+        \+ member(Vaga1,VagasLivres) -> write("Vaga já esta ocupada."),nl;
+        Funcionario == [] -> write("Funcionario nao esta cadastrado!"),nl;
+        vaga_funcionario(Funcionario,V),
+        V \== "" -> write("Funcionario ja esta alocado."),nl;
+        write("CheckIn feito. Vaga -> "),write(Vaga1),nl,
+        atualiza_vaga(Vaga1,[Vaga1,1,1,Cpf1]),
+        atualiza_funcionario(Cpf1,[Cpf1,Vaga1])
+    ).
 /*
  * Checkin do cliente
  */
@@ -109,46 +128,6 @@ reservar :-
 
         )
     ).
-
-/* ----------------------------------------------
-C = cfp do cliente,
-P = placa do veiculo,
-V = veiculo modelo,
-H = hora de entrada.
-Ainda sendo possivel colocar o valor a ser pago e o tempo de permanencia
-*/
-
-checkout :- write("Informe o CPF: "),
-readNum(C), (checkout(C)).
-
-checkout(C) :- clientes(C, P, V, H),
-	write("Saida do cliente: "),
-	write(C),
-	write("\nPlaca: "),
-	write(P),
-	write("\nVeiculo: "),
-	write(V),
-	write("\nHora de entrada: "),
-	write(H).
-
-
-reserva :- write("Reserva Ainda nao implementada").
-
-checkinFunc :- write("Por favor informe seu CPF para checkin: "),
-read(CPF), funcionario(CPF, "A003", "22:00").
-
-
-checkoutFunc :- write("Por favor informe seu CPF para checkout: "),
-read(CPF), checkoutFunc(CPF).
-
-checkoutFunc(CPF) :- funcionario(CPF, V, H),
-	write("Checkout: \n"),
-	write("Funcionario: "),
-	write(CPF),
-	write("\nVaga: "),
-	write(V),
-	write("\n Entrada em: "),
-	write(H).
 
 main :-
     ler_cliente.
