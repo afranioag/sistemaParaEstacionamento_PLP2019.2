@@ -1,5 +1,22 @@
-:- module(cliente, [formata_cliente/2,adiciona_cliente/1,ler_cliente/0,atualiza_cliente/2,imprime_cliente/1]).
+:- module(cliente, [formata_cliente/2,adiciona_cliente/1,atualiza_cliente/2,imprime_cliente/1,recupera_cliente/2,get_cpf/2,get_hora/2,get_vaga/2,get_placa/2,get_status/2,get_reserva/2,get_veiculo/2,get_visitas/2]).
 :- use_module(library(readutil)).
+
+get_cpf(Cliente,Cpf) :-
+    nth0(0,Cliente,Cpf).
+get_placa(Cliente,Placa) :-
+    nth0(1,Cliente,Placa).
+get_veiculo(Cliente,Veiculo) :-
+    nth0(2,Cliente,Veiculo).
+get_vaga(Cliente,Vaga) :-
+    nth0(5,Cliente,Vaga).
+get_reserva(Cliente,Reserva) :-
+    nth0(8,Cliente,Reserva).
+get_status(Cliente,Status) :-
+    nth0(3,Cliente,Status).
+get_visitas(Cliente,Visitas) :-
+    nth0(7,Cliente,Visitas).
+get_hora(Cliente,Hora) :-
+    nth0(6,Cliente,Hora).
 
 imprime_cliente(L) :-
     nth0(0,L,Cpf),nth0(1,L,Placa),nth0(2,L,Veiculo),nth0(3,L,Status),
@@ -7,11 +24,12 @@ imprime_cliente(L) :-
     format(string(S),'CPF:~s\nPlaca:~s\nVeiculo:~s\nStatus:~s\nValor:~d\nVaga:~d\nHora:~d\nVisitas:~d',[Cpf,Placa,Veiculo,Status,Valor,Vaga,Hora,Visitas]),
     write(S).
 
-formata_cliente(S,L) :-
-    format(string(S),'~s-~s-~s-~s-~d-~d-~d-~d-~d',L).
+formata_cliente(Out,L) :-
+    format(string(Out),'~s-~s-~s-~s-~d-~s-~d-~s-~s',L).
 
-adiciona_cliente(S) :-
+adiciona_cliente(C) :-
     open('dados/clientes.txt',append,File),
+    formata_cliente(S,C),
     writeln(File,S),
     close(File).
 
@@ -21,7 +39,7 @@ encontrado([],_,[]).
 encontrado([X|Xs],Cpf,Cliente) :-
     split_string(X,"-","",X1),
     target(X1,Cpf),
-    Cliente = X.
+    Cliente = X1,!.
 encontrado([X|Xs],Cpf,Cliente):- encontrado(Xs,Cpf,Cliente).
 
 recupera_cliente(Cpf,Cliente) :-
@@ -45,15 +63,6 @@ atualiza_cliente(Cpf,NovoCliente) :-
     open('dados/clientes.txt',write,File),
     write(File,S),
     close(File).
-
-% falta implementar mensagens do menu
-ler_cliente :-
-    read_line_to_codes(user_input,Cpf),atom_string(Cpf,I1),
-    read_line_to_codes(user_input,Placa),atom_string(Placa,I2),
-    read_line_to_codes(user_input,Veiculo),atom_string(Veiculo,I3),
-    formata_cliente(S,[I1,I2,I3,"normal",0,1,0,0,0]),
-    adiciona_cliente(S),
-    write(S).
 
 ler_arquivo(Result) :-
     open('dados/clientes.txt',read,Str),
