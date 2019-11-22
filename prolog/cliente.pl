@@ -1,31 +1,23 @@
-:- module(cliente, [formata_cliente/2,adiciona_cliente/1,atualiza_cliente/2,imprime_cliente/1,recupera_cliente/2,get_cpf/2,get_hora/2,get_vaga/2,get_placa/2,get_status/2,get_reserva/2,get_veiculo/2,get_visitas/2]).
+:- module(cliente, [formata_cliente/2,adiciona_cliente/1,atualiza_cliente/2,imprime_cliente/2,recupera_cliente/2,get_cpf/2,get_hora/2,get_vaga/2,get_placa/2,get_status/2,get_reserva/2,get_veiculo/2,get_visitas/2]).
 :- use_module(library(readutil)).
 
-get_cpf(Cliente,Cpf) :-
-    nth0(0,Cliente,Cpf).
-get_placa(Cliente,Placa) :-
-    nth0(1,Cliente,Placa).
-get_veiculo(Cliente,Veiculo) :-
-    nth0(2,Cliente,Veiculo).
-get_vaga(Cliente,Vaga) :-
-    nth0(5,Cliente,Vaga).
-get_reserva(Cliente,Reserva) :-
-    nth0(8,Cliente,Reserva).
-get_status(Cliente,Status) :-
-    nth0(3,Cliente,Status).
-get_visitas(Cliente,Visitas) :-
-    nth0(7,Cliente,Visitas).
-get_hora(Cliente,Hora) :-
-    nth0(6,Cliente,Hora).
+get_cpf(Cliente,Cpf) :- nth0(0,Cliente,Cpf).
+get_placa(Cliente,Placa) :- nth0(1,Cliente,Placa).
+get_veiculo(Cliente,Veiculo) :- nth0(2,Cliente,Veiculo).
+get_status(Cliente,Status) :- nth0(3,Cliente,Status).
+get_vaga(Cliente,Vaga) :- nth0(4,Cliente,Vaga).
+get_hora(Cliente,Hora) :- nth0(5,Cliente,Hora).
+get_visitas(Cliente,Visitas) :- nth0(6,Cliente,Visitas).
+get_reserva(Cliente,Reserva) :- nth0(7,Cliente,Visitas).
 
-imprime_cliente(L) :-
-    nth0(0,L,Cpf),nth0(1,L,Placa),nth0(2,L,Veiculo),nth0(3,L,Status),
-    nth0(4,L,Valor),nth0(5,L,Vaga),nth0(6,L,Hora),nth0(7,L,Visitas),
+imprime_cliente(Cliente,Valor) :-
+    get_cpf(Cliente,Cpf),get_placa(Cliente,Placa),get_veiculo(Cliente,Veiculo),get_status(Cliente,Status),
+    get_vaga(Cliente,Vaga),get_hora(Cliente,hora),get_visitas(Cliente,Visitas),
     format(string(S),'CPF:~s\nPlaca:~s\nVeiculo:~s\nStatus:~s\nValor:~d\nVaga:~d\nHora:~d\nVisitas:~d',[Cpf,Placa,Veiculo,Status,Valor,Vaga,Hora,Visitas]),
     write(S).
 
 formata_cliente(Out,L) :-
-    format(string(Out),'~s-~s-~s-~s-~d-~s-~d-~s-~s',L).
+    format(string(Out),'~s-~s-~s-~s-~s-~d-~s-~s',L).
 
 adiciona_cliente(C) :-
     open('dados/clientes.txt',append,File),

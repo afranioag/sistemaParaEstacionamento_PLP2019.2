@@ -1,4 +1,5 @@
-:- module(estacionamento,[cria_estacionamento/1,aloca_vaga/1,atualiza_vaga/2,calcula_valor/2]).
+:- module(estacionamento,[cria_estacionamento/1,aloca_vaga/1,atualiza_vaga/2,calcula_valor/2,verifica_novo_status/2]).
+:- use_module(cliente).
 
 veiculo("carro",10).
 veiculo("moto",6).
@@ -73,16 +74,20 @@ atualiza_vaga(Vaga,NovaVaga) :-
     write(File,S),
     close(File).
 
+verifica_novo_status(Visitas,"vip") :- number_string(Visitas1,Visitas),Visitas1 >= 5.
+verifica_novo_status(Visitas,"normal").
+
 calcula(Veiculo,Tempo,Valor,"normal") :-
-    veiculo(Veiculo,P), Tempo > 0 -> Valor is P * Tempo;
-    Valor is P * 1.
+    veiculo(Veiculo,P), (Tempo > 0 -> Valor is P * Tempo;
+    Valor is P * 1).
 calcula(Veiculo,Tempo,Valor,"vip") :-
-    veiculo(Veiculo,P), desconto(D), Tempo > 0 ->
-    Valor is P * Tempo * D; Valor is P * 1 * D.
+    veiculo(Veiculo,P), desconto(D), (Tempo > 0 ->
+    Valor is P * Tempo * D; Valor is P * 1 * D).
 
 calcula_valor(Cliente,Valor) :-
-    nth0(2,Cliente,V),nth0(3,Cliente,S),nth0(6,Cliente,T1),
+    get_status(Cliente,Status),get_hora(Cliente,Hora),get_veiculo(Cliente,Veiculo),
     get_time(T),
     stamp_date_time(T,date(_,_,_,H,_,_,_,_,_),'UTC'),
-    Tempo is H - T1,
-    calcula(V,Tempo,Valor,S).
+    number_string(Hora1,Hora),
+    Tempo is H - Hora1,
+    calcula(Veiculo,Tempo,Valor,Status).
