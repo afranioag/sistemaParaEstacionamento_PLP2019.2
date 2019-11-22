@@ -1,4 +1,4 @@
-:- module(estacionamento,[cria_estacionamento/1,aloca_vaga/1,atualiza_vaga/2,calcula_valor/2,verifica_novo_status/2]).
+:- module(estacionamento,[cria_estacionamento/1,aloca_vaga/1,atualiza_vaga/2,calcula_valor/2,verifica_novo_status/2,mostra_vagas_livres/1]).
 :- use_module(cliente).
 
 veiculo("carro",10).
@@ -30,6 +30,22 @@ cria_estacionamento(N) :-
     escreve_linhas(File,Vagas),
     close(File).
 
+monta_string([],[],[]).
+monta_string([X|Xs],[Out|Result],[Vaga|Livres]) :-
+    split_string(X,"-","",X1),
+    nth0(1,X1,Ocupada),nth0(2,X1,Reservada),
+    Ocupada == "0", Reservada == "0",nth0(0,X1,Vaga),
+    format(string(Out),'Vaga ~s Livre',[Vaga]),
+    monta_string(Xs,Result,Livres).
+monta_string([X|Xs],Result,Livres) :- monta_string(Xs,Result,Livres).
+
+
+mostra_vagas_livres(Livres) :-
+    ler_arquivo(Vagas),
+    monta_string(Vagas,S,Livres),
+    atomic_list_concat(S,"\n",VagasLivres),
+    write(VagasLivres).
+
 ler_arquivo(Result) :-
     open('dados/vagas.txt',read,Str),
     read_stream_to_codes(Str,Vagas),
@@ -48,6 +64,7 @@ aloca_vaga(Vaga) :-
     ler_arquivo(Vagas),
     vaga(Vagas,Vaga).
 
+/*
 recupera([X|Xs],Cpf,Vaga) :-
     split_string(X,"-","",X1),
     nth0(3,X1,C), C == Cpf, nth0(0,X1,Vaga),!.
@@ -57,6 +74,7 @@ recupera([],_,0).
 recupera_vaga_reservada(Cpf,Vaga) :-
     ler_arquivo(Vagas),
     recupera(Vagas,Cpf,Vaga).
+*/
 
 atualiza([],_,_,[]).
 atualiza([X|Xs],Vaga,NovaVaga,[NovaVaga1|Resultado]) :-
